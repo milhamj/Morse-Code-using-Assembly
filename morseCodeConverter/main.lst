@@ -1,0 +1,1215 @@
+     1                                 %line 1+1 main.asm
+     2                                 
+     3                                 
+     4                                 
+     5                                 
+     6                                 
+     7                                 %line 1+1 scanNum.asm
+     8                                 
+     9                                 
+    10                                 
+    11                                 
+    12                                 
+    13                                 %line 8+1 scanNum.asm
+    14                                 
+    15                                 [section .data]
+    16                                 
+    17 00000000 0A000000                _scanNumSepuluh dd 10
+    18                                 
+    19                                 [section .bss]
+    20 00000000 <gap>                   _scanNumStr resb 1
+    21                                 
+    22                                 
+    23 00000001 <gap>                   _scanNumResult resd 1
+    24                                 
+    25                                 
+    26 00000005 <gap>                   _scanNumNegative resd 1
+    27                                 
+    28                                 [section .text]
+    29                                 
+    30                                 
+    31                                 _scanNumRead:
+    32                                 
+    33                                 
+    34 00000000 B803000000              mov eax, 3
+    35 00000005 BB00000000              mov ebx, 0
+    36 0000000A B9[00000000]            mov ecx, _scanNumStr
+    37 0000000F BA01000000              mov edx, 1
+    38 00000014 CD80                    int 0x80
+    39                                 
+    40 00000016 C3                      ret
+    41                                 
+    42                                 
+    43                                 scanNum:
+    44                                 
+    45                                 
+    46 00000017 C705[00000000]0000-     mov dword [_scanNumResult], 0
+    47 00000017 0000               
+    48 00000021 C705[00000000]0100-     mov dword [_scanNumNegative], 1
+    49 00000021 0000               
+    50                                 
+    51 0000002B E8CBFFFFFF              call _scanNumRead
+    52                                 
+    53                                 
+    54 00000030 803D[00000000]2D        cmp byte[_scanNumStr], '-'
+    55 00000037 750A                    jne _scanNumLoop
+    56                                 
+    57                                 
+    58 00000039 C705[00000000]FFFF-     mov dword [_scanNumNegative], -1
+    59 00000039 FFFF               
+    60 00000043 EB2D                    jmp _scanNumNegativeNext
+    61                                 
+    62                                 
+    63                                 _scanNumLoop:
+    64                                 
+    65                                 
+    66 00000045 BB00000000              mov ebx, 0
+    67 0000004A 8A1D[00000000]          mov bl, byte[_scanNumStr]
+    68                                 
+    69                                 
+    70 00000050 80FB30                  cmp bl, '0'
+    71 00000053 7C24                    jl _scanNumExit
+    72 00000055 80FB39                  cmp bl, '9'
+    73 00000058 7F1F                    jg _scanNumExit
+    74                                 
+    75                                 
+    76 0000005A 80EB30                  sub bl, '0'
+    77                                 
+    78                                 
+    79 0000005D A1[00000000]            mov eax, [_scanNumResult]
+    80 00000062 BA00000000              mov edx, 0
+    81 00000067 F725[00000000]          mul dword [_scanNumSepuluh]
+    82 0000006D 01D8                    add eax, ebx
+    83 0000006F A3[00000000]            mov dword [_scanNumResult], eax
+    84                                 
+    85                                 _scanNumNegativeNext:
+    86                                 
+    87                                 
+    88 00000074 E882FFFFFF              call _scanNumRead
+    89                                 
+    90 00000079 EBC8                    jmp _scanNumLoop
+    91                                 
+    92                                 
+    93                                 _scanNumExit:
+    94                                 
+    95                                 
+    96 0000007B A1[00000000]            mov eax, [_scanNumResult]
+    97 00000080 99                      cdq
+    98 00000081 F72D[00000000]          imul dword[_scanNumNegative]
+    99                                 
+   100 00000087 C3                      ret
+   101                                 
+   102                                 
+   103                                 %line 7+1 main.asm
+   104                                 
+   105                                 
+   106                                 
+   107                                 %line 1+1 printNum.asm
+   108                                 
+   109                                 
+   110                                 
+   111                                 
+   112                                 
+   113                                 %line 8+1 printNum.asm
+   114                                 
+   115                                 _printNumStrLen equ 255
+   116                                 
+   117                                 [section .data]
+   118                                 
+   119 00000004 0A000000                _printNumSepuluh dd 10
+   120                                 
+   121                                 
+   122 00000008 01000000                _printNumNegative dd 1
+   123                                 
+   124                                 [section .bss]
+   125                                 
+   126 00000009 <gap>                   _printNumStr resb _printNumStrLen
+   127                                 
+   128                                 [section .text]
+   129                                 
+   130                                 printNum:
+   131                                 
+   132                                 
+   133 00000088 B9FF000000              mov ecx, _printNumStrLen
+   134 0000008D 83E901                  sub ecx, 1
+   135                                 
+   136 00000090 C705[00000000]0100-     mov dword [_printNumNegative], 1
+   137 00000090 0000               
+   138                                 
+   139                                 
+   140 0000009A 83F800                  cmp eax, 0
+   141 0000009D 750A                    jne _printNumCekNegative
+   142                                 
+   143                                 
+   144 0000009F C681[00000000]30        mov byte [_printNumStr + ecx], '0'
+   145 000000A6 83E901                  sub ecx, 1
+   146 000000A9 EB37                    jmp _printNumCetak
+   147                                 
+   148                                 _printNumCekNegative:
+   149                                 
+   150 000000AB 83F800                  cmp eax, 0
+   151 000000AE 7F16                    jg _printNumLoop
+   152                                 
+   153                                 
+   154 000000B0 C705[00000000]FFFF-     mov dword [_printNumNegative], -1
+   155 000000B0 FFFF               
+   156 000000BA BA00000000              mov edx, 0
+   157 000000BF 89C0                    mov eax, eax
+   158 000000C1 99                      cdq
+   159 000000C2 F72D[00000000]          imul dword [_printNumNegative]
+   160                                 
+   161                                 
+   162                                 _printNumLoop:
+   163                                 
+   164                                 
+   165 000000C8 BA00000000              mov edx, 0
+   166 000000CD F735[00000000]          div dword [_printNumSepuluh]
+   167                                 
+   168                                 
+   169 000000D3 80C230                  add dl, '0'
+   170 000000D6 8891[00000000]          mov byte [_printNumStr + ecx], dl
+   171                                 
+   172 000000DC 83E901                  sub ecx, 1
+   173                                 
+   174 000000DF 83F800                  cmp eax, 0
+   175 000000E2 75E2                    jne _printNumLoop
+   176                                 
+   177                                 
+   178                                 _printNumCetak:
+   179                                 
+   180                                 
+   181 000000E4 833D[00000000]FF        cmp dword [_printNumNegative], -1
+   182 000000EB 7508                    jne _printNumCetakNext
+   183                                 
+   184                                 
+   185 000000ED C681[00000000]2D        mov byte [_printNumStr + ecx], '-'
+   186 000000F4 83E901                  sub ecx, 1
+   187                                 
+   188                                 
+   189                                 _printNumCetakNext:
+   190                                 
+   191                                 
+   192 000000F7 BAFF000000              mov edx, _printNumStrLen
+   193 000000FC 29CA                    sub edx, ecx
+   194 000000FE 83EA01                  sub edx, 1
+   195                                 
+   196                                 
+   197 00000101 81C1[00000000]          add ecx, _printNumStr
+   198 00000107 83C101                  add ecx, 1
+   199                                 
+   200                                 
+   201 0000010A B804000000              mov eax, 4
+   202 0000010F BB01000000              mov ebx, 1
+   203 00000114 CD80                    int 0x80
+   204                                 
+   205                                 _printNumExit:
+   206                                 
+   207 00000116 C3                      ret
+   208                                 
+   209                                 
+   210                                 %line 11+1 main.asm
+   211                                 
+   212                                 
+   213                                 
+   214                                 %line 1+1 printChar.asm
+   215                                 
+   216                                 
+   217                                 
+   218                                 
+   219                                 
+   220                                 %line 8+1 printChar.asm
+   221                                 
+   222                                 [section .data]
+   223                                 
+   224                                 [section .bss]
+   225 00000108 <gap>                   _printCharCetak resb 1
+   226                                 
+   227                                 [section .text]
+   228                                 
+   229                                 printChar:
+   230                                 
+   231 00000117 A2[00000000]            mov byte [_printCharCetak], al
+   232 0000011C B804000000              mov eax, 4
+   233 00000121 B9[00000000]            mov ecx, _printCharCetak
+   234 00000126 BA01000000              mov edx, 1
+   235 0000012B CD80                    int 0x80
+   236                                 
+   237                                 _printCharExit:
+   238                                 
+   239 0000012D C3                      ret
+   240                                 
+   241                                 
+   242                                 %line 15+1 main.asm
+   243                                 
+   244                                 
+   245                                 
+   246                                 %line 1+1 scanStr.asm
+   247                                 
+   248                                 
+   249                                 
+   250                                 
+   251                                 
+   252                                 %line 8+1 scanStr.asm
+   253                                 
+   254                                 [section .data]
+   255                                 
+   256                                 [section .bss]
+   257 00000109 <gap>                   _scanStrChar resb 1
+   258 0000010A <gap>                   _scanStrText resb 256
+   259 0000020A <gap>                   _scanStrIndex resd 1
+   260                                 
+   261                                 [section .text]
+   262                                 
+   263                                 _scanStrRead:
+   264                                 
+   265                                 
+   266 0000012E B803000000              mov eax, 3
+   267 00000133 BB00000000              mov ebx, 0
+   268 00000138 B9[00000000]            mov ecx, _scanStrChar
+   269 0000013D BA01000000              mov edx, 1
+   270 00000142 CD80                    int 0x80
+   271                                 
+   272 00000144 C3                      ret
+   273                                 
+   274                                 
+   275                                 scanStr:
+   276                                 
+   277                                 
+   278 00000145 C705[00000000]0000-     mov dword [_scanStrIndex], 0
+   279 00000145 0000               
+   280                                 
+   281                                 
+   282                                 _scanStrLoop:
+   283                                 
+   284                                 
+   285 0000014F 813D[00000000]FF00-     cmp dword [_scanStrIndex], 255
+   286 0000014F 0000               
+   287 00000159 7430                    je _scanStrExit
+   288                                 
+   289                                 
+   290 0000015B E8C9FFFFFF              call _scanStrRead
+   291                                 
+   292                                 
+   293                                 
+   294                                 
+   295                                 
+   296                                 
+   297 00000160 803D[00000000]0A        cmp byte [_scanStrChar], 10
+   298 00000167 7422                    je _scanStrExit
+   299                                 
+   300                                 
+   301 00000169 803D[00000000]00        cmp byte [_scanStrChar], 0
+   302 00000170 7419                    je _scanStrExit
+   303                                 
+   304                                 
+   305                                 
+   306 00000172 8B0D[00000000]          mov ecx, [_scanStrIndex]
+   307 00000178 8A1D[00000000]          mov bl, [_scanStrChar]
+   308 0000017E 8899[00000000]          mov byte [_scanStrText + ecx], bl
+   309                                 
+   310                                 
+   311 00000184 8305[00000000]01        add dword [_scanStrIndex], 1
+   312                                 
+   313 0000018B EBC0                    jmp _scanStrLoop
+   314                                 
+   315                                 
+   316                                 _scanStrExit:
+   317                                 
+   318                                 
+   319 0000018D 8B0D[00000000]          mov ecx, [_scanStrIndex]
+   320 00000193 C681[00000000]00        mov byte [_scanStrText + ecx], 0
+   321                                 
+   322                                 
+   323 0000019A 89CB                    mov ebx, ecx
+   324 0000019C 83EB01                  sub ebx, 1
+   325                                 
+   326                                 
+   327 0000019F B8[00000000]            mov eax, _scanStrText
+   328 000001A4 8B1D[00000000]          mov ebx, [_scanStrIndex]
+   329                                 
+   330 000001AA C3                      ret
+   331                                 
+   332                                 
+   333                                 %line 1+1 scanStrSpace.asm
+   334                                 
+   335                                 
+   336                                 
+   337                                 
+   338                                 
+   339                                 %line 8+1 scanStrSpace.asm
+   340                                 
+   341                                 [section .data]
+   342                                 
+   343                                 [section .bss]
+   344 0000020E <gap>                   _scanStrCharSpace resb 1
+   345 0000020F <gap>                   _scanStrTextSpace resb 256
+   346 0000030F <gap>                   _scanStrIndexSpace resd 1
+   347                                 
+   348                                 [section .text]
+   349                                 
+   350                                 _scanStrReadSpace:
+   351                                 
+   352                                 
+   353 000001AB B803000000              mov eax, 3
+   354 000001B0 BB00000000              mov ebx, 0
+   355 000001B5 B9[00000000]            mov ecx, _scanStrCharSpace
+   356 000001BA BA01000000              mov edx, 1
+   357 000001BF CD80                    int 0x80
+   358                                 
+   359 000001C1 C3                      ret
+   360                                 
+   361                                 
+   362                                 scanStrSpace:
+   363                                 
+   364                                 
+   365 000001C2 C705[00000000]0000-     mov dword [_scanStrIndexSpace], 0
+   366 000001C2 0000               
+   367                                 
+   368                                 
+   369                                 _scanStrLoopSpace:
+   370                                 
+   371                                 
+   372 000001CC 813D[00000000]FF00-     cmp dword [_scanStrIndexSpace], 255
+   373 000001CC 0000               
+   374 000001D6 7439                    je _scanStrExitSpace
+   375                                 
+   376                                 
+   377 000001D8 E8C9FFFFFF              call _scanStrReadSpace
+   378                                 
+   379                                 
+   380 000001DD 803D[00000000]20        cmp byte [_scanStrCharSpace], ' '
+   381 000001E4 742B                    je _scanStrExitSpace
+   382                                 
+   383                                 
+   384 000001E6 803D[00000000]0A        cmp byte [_scanStrCharSpace], 10
+   385 000001ED 7440                    je _scanStrExitSpace2
+   386                                 
+   387                                 
+   388 000001EF 803D[00000000]00        cmp byte [_scanStrCharSpace], 0
+   389 000001F6 7437                    je _scanStrExitSpace2
+   390                                 
+   391                                 
+   392                                 
+   393 000001F8 8B0D[00000000]          mov ecx, [_scanStrIndexSpace]
+   394 000001FE 8A1D[00000000]          mov bl, [_scanStrCharSpace]
+   395 00000204 8899[00000000]          mov byte [_scanStrTextSpace + ecx], bl
+   396                                 
+   397                                 
+   398 0000020A 8305[00000000]01        add dword [_scanStrIndexSpace], 1
+   399                                 
+   400 00000211 EBB7                    jmp _scanStrLoopSpace
+   401                                 
+   402                                 
+   403                                 _scanStrExitSpace:
+   404                                 
+   405                                 
+   406 00000213 8B0D[00000000]          mov ecx, [_scanStrIndexSpace]
+   407 00000219 C681[00000000]00        mov byte [_scanStrTextSpace + ecx], 0
+   408                                 
+   409                                 
+   410 00000220 89CB                    mov ebx, ecx
+   411 00000222 83EB01                  sub ebx, 1
+   412                                 
+   413                                 
+   414 00000225 B8[00000000]            mov eax, _scanStrTextSpace
+   415 0000022A 8B1D[00000000]          mov ebx, [_scanStrIndexSpace]
+   416                                 
+   417 00000230 C3                      ret
+   418                                 
+   419                                 _scanStrExitSpace2:
+   420                                 
+   421                                 
+   422 00000231 8B0D[00000000]          mov ecx, [_scanStrIndexSpace]
+   423 00000237 C681[00000000]00        mov byte [_scanStrTextSpace + ecx], 0
+   424                                 
+   425                                 
+   426 0000023E 89CB                    mov ebx, ecx
+   427 00000240 83EB01                  sub ebx, 1
+   428                                 
+   429                                 
+   430 00000243 B8[00000000]            mov eax, _scanStrTextSpace
+   431 00000248 8B1D[00000000]          mov ebx, [_scanStrIndexSpace]
+   432                                 
+   433 0000024E BE0D000000              mov esi,13
+   434 00000253 C3                      ret
+   435                                 
+   436                                 %line 20+1 main.asm
+   437                                 
+   438                                 
+   439                                 
+   440                                 %line 1+1 printStr.asm
+   441                                 
+   442                                 
+   443                                 
+   444                                 
+   445                                 
+   446                                 %line 8+1 printStr.asm
+   447                                 
+   448                                 [section .data]
+   449                                 
+   450                                 [section .bss]
+   451                                 
+   452                                 [section .text]
+   453                                 
+   454                                 printStr:
+   455                                 
+   456                                 
+   457 00000254 89C1                    mov ecx, eax
+   458                                 
+   459                                 _printStrLoop:
+   460                                 
+   461                                 
+   462 00000256 803900                  cmp byte [ecx], 0
+   463 00000259 740F                    je _printStrExit
+   464                                 
+   465                                 
+   466 0000025B B804000000              mov eax, 4
+   467 00000260 BA01000000              mov edx, 1
+   468 00000265 CD80                    int 0x80
+   469                                 
+   470                                 
+   471 00000267 83C101                  add ecx, 1
+   472                                 
+   473 0000026A EBE8                    jmp _printStrLoop
+   474                                 
+   475                                 _printStrExit:
+   476                                 
+   477 0000026C C3                      ret
+   478                                 
+   479                                 
+   480                                 %line 24+1 main.asm
+   481                                 
+   482                                 
+   483                                 
+   484                                 
+   485                                 %line 1+1 cmpStr.asm
+   486                                 
+   487                                 
+   488                                 
+   489                                 
+   490                                 
+   491                                 
+   492                                 %line 9+1 cmpStr.asm
+   493                                 
+   494                                 [section .data]
+   495                                 
+   496                                 [section .bss]
+   497                                 
+   498                                 [section .text]
+   499                                 
+   500                                 cmpStr:
+   501                                 
+   502                                 _cmpStrLoop:
+   503                                 
+   504                                 
+   505 0000026D 8A13                    mov dl, [ebx]
+   506 0000026F 3A10                    cmp dl, [eax]
+   507 00000271 7512                    jne _cmpStrBeda
+   508                                 
+   509                                 
+   510 00000273 803800                  cmp byte [eax], 0
+   511 00000276 7406                    je _cmpStrSama
+   512                                 
+   513                                 
+   514 00000278 83C001                  add eax, 1
+   515 0000027B 83C301                  add ebx, 1
+   516                                 
+   517 0000027E EBEB                    jmp _cmpStrLoop
+   518                                 
+   519                                 _cmpStrSama:
+   520                                 
+   521 00000280 B801000000              mov eax, 1
+   522 00000285 EB03                    jmp _cmpStrExit
+   523                                 
+   524                                 _cmpStrBeda:
+   525                                 
+   526 00000287 B800000000              mov eax, 0
+   527                                 
+   528                                 _cmpStrExit:
+   529                                 
+   530 0000028C C3                      ret
+   531                                 
+   532                                 
+   533                                 %line 29+1 main.asm
+   534                                 
+   535                                 
+   536                                 
+   537                                 %line 1+1 cpyStr.asm
+   538                                 
+   539                                 
+   540                                 
+   541                                 
+   542                                 
+   543                                 %line 8+1 cpyStr.asm
+   544                                 
+   545                                 [section .data]
+   546                                 
+   547                                 [section .bss]
+   548                                 
+   549                                 [section .text]
+   550                                 
+   551                                 cpyStr:
+   552                                 
+   553                                 _cpyStrLoop:
+   554                                 
+   555                                 
+   556 0000028D 8A10                    mov dl, [eax]
+   557 0000028F 8813                    mov byte [ebx], dl
+   558                                 
+   559                                 
+   560 00000291 803800                  cmp byte [eax], 0
+   561 00000294 7406                    je _cpyStrExit
+   562                                 
+   563                                 
+   564 00000296 83C001                  add eax, 1
+   565 00000299 83C301                  add ebx, 1
+   566                                 
+   567 0000029C EBED                    jmp _cpyStrLoop
+   568                                 
+   569                                 _cpyStrExit:
+   570                                 
+   571 0000029E C3                      ret
+   572                                 
+   573                                 
+   574                                 %line 33+1 main.asm
+   575                                 
+   576                                 %line 3+1 clear_screen.asm
+   577                                 
+   578                                 %line 6+1 clear_screen.asm
+   579                                 
+   580                                 
+   581                                 
+   582                                 
+   583                                 
+   584                                 
+   585                                 [section .data]
+   586 0000000C 1B5B481B5B324A00        clr_scr db 27, '[H' , 27, '[2J', 0
+   587                                  len_clr_scr equ $-clr_scr
+   588                                 
+   589                                 clear_screen:
+   590 00000014 B804000000              mov eax, 4
+   591 00000019 BB01000000              mov ebx, 1
+   592 0000001E B9[00000000]            mov ecx, clr_scr
+   593 00000023 BA08000000              mov edx, len_clr_scr
+   594 00000028 CD80                    int 0x80
+   595                                 
+   596 0000002A C3                      ret
+   597                                 
+   598                                 %line 35+1 main.asm
+   599                                 
+   600                                 [section .data]
+   601 0000002B [00000000][00000000]-     angka dd n0,n1,n2,n3,n4,n5,n6,n7,n8,n9
+   602 0000002B [00000000][00000000]-
+   603 0000002B [00000000][00000000]-
+   604 0000002B [00000000][00000000]-
+   605 0000002B [00000000][00000000] 
+   606 00000053 [00000000][00000000]-     huruf dd a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z
+   607 00000053 [00000000][00000000]-
+   608 00000053 [00000000][00000000]-
+   609 00000053 [00000000][00000000]-
+   610 00000053 [00000000][00000000]-
+   611 00000053 [00000000][00000000]-
+   612 00000053 [00000000][00000000]-
+   613 00000053 [00000000][00000000]-
+   614 00000053 [00000000][00000000]-
+   615 00000053 [00000000][00000000]-
+   616 00000053 [00000000][00000000]-
+   617 00000053 [00000000][00000000]-
+   618 00000053 [00000000][00000000] 
+   619 000000BB [00000000][00000000]-     mark dd comma,hypen,period,slash
+   620 000000BB [00000000][00000000] 
+   621 000000CB 2E2D00                  a db '.-',0
+   622 000000CE 2D2E2E2E00              b db '-...',0
+   623 000000D3 2D2E2D2E00              c db '-.-.',0
+   624 000000D8 2D2E2E00                d db '-..',0
+   625 000000DC 2E00                    e db '.',0
+   626 000000DE 2E2E2D2E00              f db '..-.',0
+   627 000000E3 2D2D2E00                g db '--.',0
+   628 000000E7 2E2E2E2E00              h db '....',0
+   629 000000EC 2E2E00                  i db '..',0
+   630 000000EF 2E2D2D2D00              j db '.---',0
+   631 000000F4 2D2E2D00                k db '-.-',0
+   632 000000F8 2E2D2E2E00              l db '.-..',0
+   633 000000FD 2D2D00                  m db '--',0
+   634 00000100 2D2E00                  n db '-.',0
+   635 00000103 2D2D2D00                o db '---',0
+   636 00000107 2E2D2D2E00              p db '.--.',0
+   637 0000010C 2D2D2E2D00              q db '--.-',0
+   638 00000111 2E2D2E00                r db '.-.',0
+   639 00000115 2E2E2E00                s db '...',0
+   640 00000119 2D00                    t db '-',0
+   641 0000011B 2E2E2D00                u db '..-',0
+   642 0000011F 2E2E2E2D00              v db '...-',0
+   643 00000124 2E2D2D00                w db '.--',0
+   644 00000128 2D2E2E2D00              x db '-..-',0
+   645 0000012D 2D2E2D2D00              y db '-.--',0
+   646 00000132 2D2D2E2E00              z db '--..',0
+   647 00000137 2D2D2D2D2D00            n0 db '-----',0
+   648 0000013D 2E2D2D2D2D00            n1 db '.----',0
+   649 00000143 2E2E2D2D2D00            n2 db '..---',0
+   650 00000149 2E2E2E2D2D00            n3 db '...--',0
+   651 0000014F 2E2E2E2E2D00            n4 db '....-',0
+   652 00000155 2E2E2E2E2E00            n5 db '.....',0
+   653 0000015B 2D2E2E2E2E00            n6 db '-....',0
+   654 00000161 2D2D2E2E2E00            n7 db '--...',0
+   655 00000167 2D2D2D2E2E00            n8 db '---..',0
+   656 0000016D 2D2D2D2D2E00            n9 db '----.',0
+   657 00000173 2D2D2E2E2D2D00          comma db '--..--',0
+   658 0000017A 2D2E2E2E2E2D00          hypen db '-....-',0
+   659 00000181 2E2D2E2D2E2D00          period db '.-.-.-',0
+   660 00000188 2D2E2E2D2E00            slash db '-..-.',0
+   661 0000018E 2D2D2D2D2D2D2D2D2D-     menu db '---------                      Select Operation:                      ---------',10,
+   662 0000018E 202020202020202020-
+   663 0000018E 202020202020202020-
+   664 0000018E 2020202053656C6563-
+   665 0000018E 74204F706572617469-
+   666 0000018E 6F6E3A202020202020-
+   667 0000018E 202020202020202020-
+   668 0000018E 202020202020202D2D-
+   669 0000018E 2D2D2D2D2D2D2D0A   
+   670 000001DE 2D2D2D2D2D2D2D2D2D-     db '---------        1. Convert Text-to-MorseCode w/ Caesar Cipher        ---------',10,
+   671 000001DE 202020202020202031-
+   672 000001DE 2E20436F6E76657274-
+   673 000001DE 20546578742D746F2D-
+   674 000001DE 4D6F727365436F6465-
+   675 000001DE 20772F204361657361-
+   676 000001DE 722043697068657220-
+   677 000001DE 202020202020202D2D-
+   678 000001DE 2D2D2D2D2D2D2D0A   
+   679 0000022E 2D2D2D2D2D2D2D2D2D-     db '---------        2. Convert MorseCode-to-Text w/ Caesar Cipher        ---------',10,
+   680 0000022E 202020202020202032-
+   681 0000022E 2E20436F6E76657274-
+   682 0000022E 204D6F727365436F64-
+   683 0000022E 652D746F2D54657874-
+   684 0000022E 20772F204361657361-
+   685 0000022E 722043697068657220-
+   686 0000022E 202020202020202D2D-
+   687 0000022E 2D2D2D2D2D2D2D0A   
+   688 0000027E 2D2D2D2D2D2D2D2D2D-     db '---------                3. Convert Text-to-MorseCode                 ---------',10,
+   689 0000027E 202020202020202020-
+   690 0000027E 20202020202020332E-
+   691 0000027E 20436F6E7665727420-
+   692 0000027E 546578742D746F2D4D-
+   693 0000027E 6F727365436F646520-
+   694 0000027E 202020202020202020-
+   695 0000027E 202020202020202D2D-
+   696 0000027E 2D2D2D2D2D2D2D0A   
+   697 000002CE 2D2D2D2D2D2D2D2D2D-     db '---------                4. Convert MorseCode-to-Text                 ---------',10,10,10,0
+   698 000002CE 202020202020202020-
+   699 000002CE 20202020202020342E-
+   700 000002CE 20436F6E7665727420-
+   701 000002CE 4D6F727365436F6465-
+   702 000002CE 2D746F2D5465787420-
+   703 000002CE 202020202020202020-
+   704 000002CE 202020202020202D2D-
+   705 000002CE 2D2D2D2D2D2D2D0A0A-
+   706 000002CE 0A00               
+   707 00000321 2D2D2D2D2D2D2D2D2D-     err1 db '---------                 Error! Undefined Operation.                 ---------',10,
+   708 00000321 202020202020202020-
+   709 00000321 202020202020202045-
+   710 00000321 72726F722120556E64-
+   711 00000321 6566696E6564204F70-
+   712 00000321 65726174696F6E2E20-
+   713 00000321 202020202020202020-
+   714 00000321 202020202020202D2D-
+   715 00000321 2D2D2D2D2D2D2D0A   
+   716 00000371 202020202020202020-     db '                -----------------Restarting------------------                ',10,10,10,0
+   717 00000371 202020202020202D2D-
+   718 00000371 2D2D2D2D2D2D2D2D2D-
+   719 00000371 2D2D2D2D2D2D526573-
+   720 00000371 74617274696E672D2D-
+   721 00000371 2D2D2D2D2D2D2D2D2D-
+   722 00000371 2D2D2D2D2D2D2D2020-
+   723 00000371 202020202020202020-
+   724 00000371 20202020200A0A0A00 
+   725 000003C2 0A0A0A2D2D2D2D2D2D-     lagi db 10,10,10,'---------                  Do you want to try again?                 ----------',10,
+   726 000003C2 2D2D2D202020202020-
+   727 000003C2 202020202020202020-
+   728 000003C2 202020446F20796F75-
+   729 000003C2 2077616E7420746F20-
+   730 000003C2 74727920616761696E-
+   731 000003C2 3F2020202020202020-
+   732 000003C2 202020202020202020-
+   733 000003C2 2D2D2D2D2D2D2D2D2D-
+   734 000003C2 2D0A               
+   735 00000415 2D2D2D2D2D2D2D2D2D-     db '---------                           1. Yes                           ----------',10,
+   736 00000415 202020202020202020-
+   737 00000415 202020202020202020-
+   738 00000415 202020202020202020-
+   739 00000415 312E20596573202020-
+   740 00000415 202020202020202020-
+   741 00000415 202020202020202020-
+   742 00000415 2020202020202D2D2D-
+   743 00000415 2D2D2D2D2D2D2D0A   
+   744 00000465 2D2D2D2D2D2D2D2D2D-     db '---------                           2. No                            ----------',10,10,10,0
+   745 00000465 202020202020202020-
+   746 00000465 202020202020202020-
+   747 00000465 202020202020202020-
+   748 00000465 322E204E6F20202020-
+   749 00000465 202020202020202020-
+   750 00000465 202020202020202020-
+   751 00000465 2020202020202D2D2D-
+   752 00000465 2D2D2D2D2D2D2D0A0A-
+   753 00000465 0A00               
+   754 000004B8 0A0A2D2D2D2D2D2D2D-     input db 10,10,'---------                     Enter your input..                     ----------',10,10,10,0
+   755 000004B8 2D2D20202020202020-
+   756 000004B8 202020202020202020-
+   757 000004B8 2020202020456E7465-
+   758 000004B8 7220796F757220696E-
+   759 000004B8 7075742E2E20202020-
+   760 000004B8 202020202020202020-
+   761 000004B8 20202020202020202D-
+   762 000004B8 2D2D2D2D2D2D2D2D2D-
+   763 000004B8 0A0A0A00           
+   764 0000050D 0A0A2D2D2D2D2D2D2D-     input1 db 10,10,'---------                     Enter your input..                     ----------',10,
+   765 0000050D 2D2D20202020202020-
+   766 0000050D 202020202020202020-
+   767 0000050D 2020202020456E7465-
+   768 0000050D 7220796F757220696E-
+   769 0000050D 7075742E2E20202020-
+   770 0000050D 202020202020202020-
+   771 0000050D 20202020202020202D-
+   772 0000050D 2D2D2D2D2D2D2D2D2D-
+   773 0000050D 0A                 
+   774 0000055F 4F6E6C79206C657474-     db 'Only letters(A-Z), numbers(0-9), comma(,), period(.), hypen(-), and slash(/) are allowed',10,10,10,0
+   775 0000055F 65727328412D5A292C-
+   776 0000055F 206E756D6265727328-
+   777 0000055F 302D39292C20636F6D-
+   778 0000055F 6D61282C292C207065-
+   779 0000055F 72696F64282E292C20-
+   780 0000055F 687970656E282D292C-
+   781 0000055F 20616E6420736C6173-
+   782 0000055F 68282F292061726520-
+   783 0000055F 616C6C6F7765640A0A-
+   784 0000055F 0A00               
+   785 000005BB 2D2D2D2D2D2D2D2D2D-     thanks db '---------                       Thank you...                         ---------',10,10,
+   786 000005BB 202020202020202020-
+   787 000005BB 202020202020202020-
+   788 000005BB 20202020205468616E-
+   789 000005BB 6B20796F752E2E2E20-
+   790 000005BB 202020202020202020-
+   791 000005BB 202020202020202020-
+   792 000005BB 2020202020202D2D2D-
+   793 000005BB 2D2D2D2D2D2D0A0A   
+   794 0000060B 202020202020202020-     db '               ------Muhammad Ilham Jamaludin G64130015------                ',10,
+   795 0000060B 2020202020202D2D2D-
+   796 0000060B 2D2D2D4D7568616D6D-
+   797 0000060B 616420496C68616D20-
+   798 0000060B 4A616D616C7564696E-
+   799 0000060B 204736343133303031-
+   800 0000060B 352D2D2D2D2D2D2020-
+   801 0000060B 202020202020202020-
+   802 0000060B 20202020200A       
+   803 00000659 202020202020202020-     db '               ----------Billy Ardhiaseno G64130065----------                ',10,10,
+   804 00000659 2020202020202D2D2D-
+   805 00000659 2D2D2D2D2D2D2D4269-
+   806 00000659 6C6C79204172646869-
+   807 00000659 6173656E6F20473634-
+   808 00000659 3133303036352D2D2D-
+   809 00000659 2D2D2D2D2D2D2D2020-
+   810 00000659 202020202020202020-
+   811 00000659 20202020200A0A     
+   812 000006A8 2D2D2D2D2D2D2D2D2D-     db '---------                      | IPB @ 2015 |                        ---------',10,10,10,0
+   813 000006A8 202020202020202020-
+   814 000006A8 202020202020202020-
+   815 000006A8 202020207C20495042-
+   816 000006A8 20402032303135207C-
+   817 000006A8 202020202020202020-
+   818 000006A8 202020202020202020-
+   819 000006A8 2020202020202D2D2D-
+   820 000006A8 2D2D2D2D2D2D0A0A0A-
+   821 000006A8 00                 
+   822                                 
+   823                                 [section .bss]
+   824 00000313 <gap>                   string resb 255
+   825 00000412 <gap>                   length resd 1
+   826 00000416 <gap>                   temp resb 10
+   827                                 
+   828                                 
+   829                                 [section .text]
+   830                                 [global main]
+   831                                 
+   832                                 main:
+   833 0000029F E8(F6FFFFFF)            call clear_screen
+   834 000002A4 BF00000000              mov edi,0
+   835 000002A9 BE00000000              mov esi,0
+   836 000002AE B8[00000000]            mov eax,menu
+   837 000002B3 BB01000000              mov ebx,1
+   838 000002B8 E892FFFFFF              call printStr
+   839                                 
+   840 000002BD E850FDFFFF              call scanNum
+   841 000002C2 83F801                  cmp eax,1
+   842 000002C5 7428                    je text_to_morse_w_cc
+   843 000002C7 83F802                  cmp eax,2
+   844 000002CA 0F84A6010000            je morse_to_text_w_cc
+   845 000002D0 83F803                  cmp eax,3
+   846 000002D3 741F                    je text_to_morse
+   847 000002D5 83F804                  cmp eax,4
+   848 000002D8 0F849F010000            je morse_to_text_input
+   849 000002DE EBFE                    jmp _err1
+   850                                 
+   851                                 _err1:
+   852 000002E0 B8[00000000]            mov eax,err1
+   853 000002E5 BB01000000              mov ebx,1
+   854 000002EA E860FFFFFF              call printStr
+   855 000002EF EBAC                    jmp main
+   856                                 
+   857                                  text_to_morse_w_cc
+   858 000002F1 BE0D000000              mov esi,13
+   859                                 
+   860                                  text_to_morse:
+   861                                 
+   862 000002F6 B8[00000000]            mov eax,input1
+   863 000002FB BB01000000              mov ebx,1
+   864 00000300 E84AFFFFFF              call printStr
+   865                                 
+   866 00000305 E836FEFFFF              call scanStr
+   867                                 
+   868                                 
+   869 0000030A BB[00000000]            mov ebx, string
+   870 0000030F E874FFFFFF              call cpyStr
+   871                                 
+   872                                 
+   873 00000314 B900000000              mov ecx,0
+   874 00000319 EB59                    jmp loop_k
+   875                                  end_of_loop_k:
+   876                                 
+   877                                 
+   878 0000031B B8[00000000]            mov eax, string
+   879 00000320 BB01000000              mov ebx, 1
+   880 00000325 E825FFFFFF              call printStr
+   881                                 
+   882                                 
+   883 0000032A B00A                    mov al,10
+   884 0000032C BB01000000              mov ebx,1
+   885 00000331 E8DCFDFFFF              call printChar
+   886                                 
+   887                                 
+   888 00000336 83FE0D                  cmp esi,13
+   889 00000339 7520                    jne begin_conv
+   890                                 
+   891                                 
+   892 0000033B B900000000              mov ecx,0
+   893 00000340 EB4E                    jmp loop_cc
+   894                                  end_of_loop_cc:
+   895                                 
+   896                                 
+   897 00000342 B8[00000000]            mov eax, string
+   898 00000347 BB01000000              mov ebx, 1
+   899 0000034C E8FEFEFFFF              call printStr
+   900                                 
+   901                                 
+   902 00000351 B00A                    mov al,10
+   903 00000353 BB01000000              mov ebx,1
+   904 00000358 E8B5FDFFFF              call printChar
+   905                                 
+   906                                  begin_conv:
+   907                                 
+   908 0000035D BF00000000              mov edi,0
+   909 00000362 57                      push edi
+   910 00000363 EB5A                    jmp loop_conv
+   911                                  end_of_loop_conv:
+   912                                 
+   913                                 
+   914 00000365 B00A                    mov al, 10
+   915 00000367 BB01000000              mov ebx, 1
+   916 0000036C E8A1FDFFFF              call printChar
+   917                                 
+   918 00000371 E96E020000              jmp try_again
+   919                                 
+   920                                  loop_k:
+   921 00000376 8A81[00000000]          mov al,[string+ecx]
+   922 0000037C 3C00                    cmp al,0
+   923 0000037E 7499                    je end_of_loop_k
+   924 00000380 3C61                    cmp al,97
+   925 00000382 7D01                    jge kapitalkan
+   926 00000384 41                      inc ecx
+   927 00000385 EBED                    jmp loop_k
+   928                                 
+   929                                  kapitalkan:
+   930 00000387 2C20                    sub al,32
+   931 00000389 8881[00000000]          mov byte [string+ecx*1], al
+   932 0000038F 41                      inc ecx
+   933 00000390 EBE2                    jmp loop_k
+   934                                 
+   935                                  loop_cc:
+   936 00000392 8A81[00000000]          mov al,[string+ecx]
+   937 00000398 3C00                    cmp al,0
+   938 0000039A 74A4                    je end_of_loop_cc
+   939 0000039C 3C20                    cmp al,' '
+   940 0000039E 7411                    je kucing
+   941 000003A0 3C41                    cmp al,65
+   942 000003A2 7C0D                    jl kucing
+   943 000003A4 0403                    add al,3
+   944 000003A6 3C5B                    cmp al,91
+   945 000003A8 7D0A                    jge special_cc
+   946 000003AA 8881[00000000]          mov [string+ecx],al
+   947 000003B0 41                      inc ecx
+   948 000003B1 EBDD                    jmp loop_cc
+   949                                 
+   950                                  kucing:
+   951 000003B3 41                      inc ecx
+   952 000003B4 EBDA                    jmp loop_cc
+   953                                 
+   954                                  special_cc:
+   955 000003B6 2C1A                    sub al,26
+   956 000003B8 8881[00000000]          mov [string+ecx],al
+   957 000003BE 41                      inc ecx
+   958 000003BF EBCF                    jmp loop_cc
+   959                                 
+   960                                 
+   961                                  loop_conv:
+   962 000003C1 5F                      pop edi
+   963 000003C2 8A87[00000000]          mov al,[string+edi]
+   964 000003C8 57                      push edi
+   965 000003C9 3C00                    cmp al,0
+   966 000003CB 7496                    je end_of_loop_conv
+   967 000003CD 3C20                    cmp al,' '
+   968 000003CF 0F847B000000            je thats_space
+   969                                 
+   970 000003D5 B22F                    mov dl,'/'
+   971 000003D7 38C2                    cmp dl,al
+   972 000003D9 7D52                    jge print_mark
+   973                                 
+   974 000003DB B239                    mov dl,'9'
+   975 000003DD 38C2                    cmp dl,al
+   976 000003DF 7D04                    jge print_angka
+   977                                 
+   978 000003E1 B25A                    mov dl,'Z'
+   979 000003E3 38C2                    cmp dl,al
+   980 000003E5 7D22                    jge print_huruf
+   981                                 
+   982                                 
+   983                                 
+   984                                  print_angka:
+   985 000003E7 2C30                    sub al,'0'
+   986 000003E9 B900000000              mov ecx,0
+   987 000003EE 88C1                    mov cl,al
+   988 000003F0 8B048D[00000000]        mov eax,[angka+ecx*4]
+   989 000003F7 BB01000000              mov ebx,1
+   990 000003FC E84EFEFFFF              call printStr
+   991 00000401 5F                      pop edi
+   992 00000402 47                      inc edi
+   993 00000403 57                      push edi
+   994 00000404 E861000000              call print_space
+   995 00000409 EBB4                    jmp loop_conv
+   996                                 
+   997                                 
+   998                                  print_huruf:
+   999 0000040B 2C41                    sub al,'A'
+  1000 0000040D B900000000              mov ecx,0
+  1001 00000412 88C1                    mov cl,al
+  1002 00000414 8B048D[00000000]        mov eax,[huruf+ecx*4]
+  1003 0000041B BB01000000              mov ebx,1
+  1004 00000420 E82AFEFFFF              call printStr
+  1005 00000425 5F                      pop edi
+  1006 00000426 47                      inc edi
+  1007 00000427 57                      push edi
+  1008 00000428 E83D000000              call print_space
+  1009 0000042D EB90                    jmp loop_conv
+  1010                                 
+  1011                                  print_mark:
+  1012 0000042F 2C2C                    sub al,','
+  1013 00000431 B900000000              mov ecx,0
+  1014 00000436 88C1                    mov cl,al
+  1015 00000438 8B048D[00000000]        mov eax,[mark+ecx*4]
+  1016 0000043F BB01000000              mov ebx,1
+  1017 00000444 E806FEFFFF              call printStr
+  1018 00000449 5F                      pop edi
+  1019 0000044A 47                      inc edi
+  1020 0000044B 57                      push edi
+  1021 0000044C E819000000              call print_space
+  1022 00000451 E966FFFFFF              jmp loop_conv
+  1023                                 
+  1024                                 
+  1025                                  thats_space:
+  1026 00000456 B02F                    mov al,'/'
+  1027 00000458 BB01000000              mov ebx,1
+  1028 0000045D E8B0FCFFFF              call printChar
+  1029 00000462 E803000000              call print_space
+  1030 00000467 5F                      pop edi
+  1031 00000468 47                      inc edi
+  1032 00000469 57                      push edi
+  1033 0000046A E94DFFFFFF              jmp loop_conv
+  1034                                 
+  1035                                 
+  1036                                  print_space:
+  1037 0000046F B020                    mov al,' '
+  1038 00000471 BB01000000              mov ebx,1
+  1039 00000476 E897FCFFFF              call printChar
+  1040 0000047B C3                      ret
+  1041                                 
+  1042                                  morse_to_text_w_cc:
+  1043 0000047C BF0D000000              mov edi,13
+  1044 00000481 EBFE                    jmp morse_to_text_input
+  1045                                 
+  1046                                  morse_to_text_input:
+  1047                                 
+  1048 00000483 B8[00000000]            mov eax,input
+  1049 00000488 BB01000000              mov ebx,1
+  1050 0000048D E8BDFDFFFF              call printStr
+  1051                                 
+  1052                                  morse_to_text:
+  1053                                 
+  1054 00000492 E826FDFFFF              call scanStrSpace
+  1055                                 
+  1056                                 
+  1057 00000497 BB[00000000]            mov ebx,string
+  1058 0000049C E8E7FDFFFF              call cpyStr
+  1059                                 
+  1060                                 
+  1061 000004A1 B900000000              mov ecx,0
+  1062                                  loop_cmp1
+  1063 000004A6 83F91A                  cmp ecx,26
+  1064 000004A9 7464                    je end_of_loop_cmp1
+  1065 000004AB B8[00000000]            mov eax,string
+  1066 000004B0 8B1C8D[00000000]        mov ebx,[huruf+ecx*4]
+  1067 000004B7 E8ACFDFFFF              call cmpStr
+  1068 000004BC 83F801                  cmp eax,1
+  1069 000004BF 7401                    je with_or_without
+  1070 000004C1 41                      inc ecx
+  1071 000004C2 EBE0                    jmp loop_cmp1
+  1072                                 
+  1073                                  with_or_without:
+  1074 000004C4 83FF0D                  cmp edi,13
+  1075 000004C7 7400                    je decode_cc
+  1076 000004C9 EB27                    jmp print_equal
+  1077                                 
+  1078                                  decode_cc:
+  1079 000004CB 83F900                  cmp ecx,0
+  1080 000004CE 740D                    je special_decode_cc0
+  1081 000004D0 83F901                  cmp ecx,1
+  1082 000004D3 740F                    je special_decode_cc1
+  1083 000004D5 83F902                  cmp ecx,2
+  1084 000004D8 7411                    je special_decode_cc2
+  1085 000004DA 83E903                  sub ecx,3
+  1086 000004DD EB13                    jmp print_equal
+  1087                                 
+  1088                                  special_decode_cc0:
+  1089 000004DF B917000000              mov ecx,23
+  1090 000004E4 EB0C                    jmp print_equal
+  1091                                 
+  1092                                  special_decode_cc1:
+  1093 000004E6 B918000000              mov ecx,24
+  1094 000004EB EB05                    jmp print_equal
+  1095                                 
+  1096                                  special_decode_cc2:
+  1097 000004ED B919000000              mov ecx,25
+  1098 000004F2 EBFE                    jmp print_equal
+  1099                                 
+  1100                                  print_equal:
+  1101 000004F4 83C141                  add ecx,'A'
+  1102 000004F7 89C8                    mov eax,ecx
+  1103 000004F9 BB01000000              mov ebx,1
+  1104 000004FE E80FFCFFFF              call printChar
+  1105 00000503 83FE0D                  cmp esi,13
+  1106 00000506 0F84C9000000            je end_morse_to_text
+  1107 0000050C E9C0000000              jmp end_if_equal
+  1108                                 
+  1109                                  end_of_loop_cmp1:
+  1110 00000511 B900000000              mov ecx,0
+  1111                                 
+  1112                                  loop_cmp2
+  1113 00000516 83F90A                  cmp ecx,10
+  1114 00000519 7434                    je end_of_loop_cmp2
+  1115 0000051B B8[00000000]            mov eax,string
+  1116 00000520 8B1C8D[00000000]        mov ebx,[angka+ecx*4]
+  1117 00000527 E83CFDFFFF              call cmpStr
+  1118 0000052C 83F801                  cmp eax,1
+  1119 0000052F 7401                    je print_equal2
+  1120 00000531 41                      inc ecx
+  1121 00000532 EBE0                    jmp loop_cmp2
+  1122                                 
+  1123                                  print_equal2:
+  1124 00000534 83C130                  add ecx,'0'
+  1125 00000537 89C8                    mov eax,ecx
+  1126 00000539 BB01000000              mov ebx,1
+  1127 0000053E E8CFFBFFFF              call printChar
+  1128 00000543 83FE0D                  cmp esi,13
+  1129 00000546 0F8489000000            je end_morse_to_text
+  1130 0000054C E980000000              jmp end_if_equal
+  1131                                 
+  1132                                  end_of_loop_cmp2:
+  1133 00000551 B900000000              mov ecx,0
+  1134                                 
+  1135                                  loop_cmp3:
+  1136 00000556 83F904                  cmp ecx,4
+  1137 00000559 742D                    je end_if_not_equal
+  1138 0000055B B8[00000000]            mov eax,string
+  1139 00000560 8B1C8D[00000000]        mov ebx,[mark+ecx*4]
+  1140 00000567 E8FCFCFFFF              call cmpStr
+  1141 0000056C 83F801                  cmp eax,1
+  1142 0000056F 7401                    je print_equal3
+  1143 00000571 41                      inc ecx
+  1144 00000572 EBE0                    jmp loop_cmp3
+  1145                                 
+  1146                                  print_equal3:
+  1147 00000574 83C12C                  add ecx,','
+  1148 00000577 89C8                    mov eax,ecx
+  1149 00000579 BB01000000              mov ebx,1
+  1150 0000057E E88FFBFFFF              call printChar
+  1151 00000583 83FE0D                  cmp esi,13
+  1152 00000586 7451                    je end_morse_to_text
+  1153 00000588 EB4A                    jmp end_if_equal
+  1154                                 
+  1155                                  end_if_not_equal:
+  1156 0000058A B8[00000000]            mov eax,string
+  1157 0000058F C605[00000000]2F        mov byte [temp],'/'
+  1158 00000596 BB[00000000]            mov ebx,temp
+  1159 0000059B E8C8FCFFFF              call cmpStr
+  1160 000005A0 83F801                  cmp eax,1
+  1161 000005A3 741E                    je print_space2
+  1162                                 
+  1163 000005A5 C605[00000000]3F        mov byte [temp],'?'
+  1164 000005AC A0[00000000]            mov al,[temp]
+  1165 000005B1 BB01000000              mov ebx,1
+  1166 000005B6 E857FBFFFF              call printChar
+  1167 000005BB 83FE0D                  cmp esi,13
+  1168 000005BE 7419                    je end_morse_to_text
+  1169 000005C0 E9C8FEFFFF              jmp morse_to_text
+  1170                                 
+  1171                                  print_space2:
+  1172 000005C5 B020                    mov al,' '
+  1173 000005C7 BB01000000              mov ebx,1
+  1174 000005CC E841FBFFFF              call printChar
+  1175 000005D1 83FE0D                  cmp esi,13
+  1176 000005D4 7403                    je end_morse_to_text
+  1177                                 
+  1178                                 
+  1179                                  end_if_equal:
+  1180 000005D6 E9B2FEFFFF              jmp morse_to_text
+  1181                                 
+  1182                                  end_morse_to_text
+  1183 000005DB B00A                    mov al, 10
+  1184 000005DD BB01000000              mov ebx, 1
+  1185 000005E2 E82BFBFFFF              call printChar
+  1186 000005E7 EBFE                    jmp try_again
+  1187                                 
+  1188                                  try_again:
+  1189 000005E9 B8[00000000]            mov eax,lagi
+  1190 000005EE BB01000000              mov ebx,1
+  1191 000005F3 E857FCFFFF              call printStr
+  1192                                 
+  1193 000005F8 E815FAFFFF              call scanNum
+  1194 000005FD 83F801                  cmp eax,1
+  1195 00000600 0F8493FCFFFF            je main
+  1196 00000606 83F802                  cmp eax,2
+  1197 00000609 7411                    je exit
+  1198 0000060B EBFE                    jmp _err2
+  1199                                 
+  1200                                  _err2:
+  1201 0000060D B8[00000000]            mov eax,err1
+  1202 00000612 BB01000000              mov ebx,1
+  1203 00000617 E833FCFFFF              call printStr
+  1204 0000061C EBC9                    jmp try_again
+  1205                                 
+  1206                                 
+  1207                                 exit:
+  1208 0000061E E8(F6FFFFFF)            call clear_screen
+  1209 00000623 B8[00000000]            mov eax,thanks
+  1210 00000628 BB01000000              mov ebx,1
+  1211 0000062D E81DFCFFFF              call printStr
+  1212                                 
+  1213 00000632 B801000000              mov eax, 1
+  1214 00000637 BB00000000              mov ebx, 0
+  1215 0000063C CD80                    int 0x80
